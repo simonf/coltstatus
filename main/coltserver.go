@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+
+	"simonf.net/coltstatus"
 )
 
 func main() {
@@ -28,7 +30,15 @@ func StartServer(path string, port int) {
 }
 
 func getRequestHandler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+	result := coltstatus.CheckDependentServices("apis.txt")
 	var buffer bytes.Buffer
+	w.WriteHeader(result)
+	buffer.WriteString("hi")
+	w.Write(buffer.Bytes())
+}
+
+func logRequest(r *http.Request) {
 	// log everything we can find in the request:
 	log.Print("Method: " + r.Method)
 	log.Print("URL: " + r.URL.String())
@@ -38,6 +48,4 @@ func getRequestHandler(w http.ResponseWriter, r *http.Request) {
 	log.Print("ContentLength: " + strconv.Itoa(int(r.ContentLength)))
 	log.Print("TransferEncoding")
 	log.Print(r.TransferEncoding)
-	buffer.WriteString("ok")
-	w.Write(buffer.Bytes())
 }
