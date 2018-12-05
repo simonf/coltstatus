@@ -1,3 +1,5 @@
+//Package coltstatus checks whether a list of HTTP GET endpoints can be reached.
+// It returns 200 if everything is OK
 package coltstatus
 
 import (
@@ -6,13 +8,23 @@ import (
 	"time"
 )
 
+// ApiTarget specifies the URL to call using a GET request and the HTTP status code to expect.
 type ApiTarget struct {
 	url             string
 	expected_status int
 }
 
+// CheckDependentServices reads the specified file for a list of ApiTargets.
+// Then it calls those targets and checks for the HTTP status code response.
+// It returns:
+// - 200 if all targets respond as expected
+// - 500 as soon as a target fails to respond or responds with an unexpected HTTP status code
+// - 404 if the config file cannot be found
 func CheckDependentServices(filename string) int {
-	targets := readConfigFile(filename)
+	targets, err := ReadConfigFile(filename)
+	if err != nil {
+		return 404
+	}
 	for _, element := range targets {
 		if !isAPIOK(element) {
 			return 500

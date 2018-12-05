@@ -10,11 +10,21 @@ import (
 	"strings"
 )
 
-func readConfigFile(cfg_file string) []ApiTarget {
+// ReadConfigFile reads the specified file and returns a list of ApiTargets.
+// If the file does not exist it returns an error
+// The file should be structured with one line per target containing:
+// - the URL to call using an HTTP GET request
+// - a space
+// - the expected HTTP status code
+//
+// e.g.: http://myserver:1234/api/hello 200
+//
+// Lines starting with a # symbol will be ignored
+func ReadConfigFile(cfg_file string) ([]ApiTarget, error) {
 	rv := make([]ApiTarget, 0)
 	f, err := os.Open(cfg_file)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	scanner := bufio.NewScanner(bufio.NewReader(f))
 	for scanner.Scan() {
@@ -22,7 +32,7 @@ func readConfigFile(cfg_file string) []ApiTarget {
 		if !shouldIgnore(line) {
 			url, status, err := parseLine(line)
 			if err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 			tocheck := ApiTarget{url: url, expected_status: status}
 			rv = append(rv, tocheck)
@@ -30,9 +40,9 @@ func readConfigFile(cfg_file string) []ApiTarget {
 	}
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "reading ", cfg_file, ": ", err)
-		os.Exit(1)
+		return nil, err
 	}
-	return rv
+	return rv, nil
 }
 
 func shouldIgnore(line string) bool {

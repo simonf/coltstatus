@@ -30,6 +30,22 @@ func TestIgnoreComment(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestReadEmptyConfigFile(t *testing.T) {
+	fname := "empty.txt"
+	var buffer bytes.Buffer
+	buffer.WriteString("")
+	err := ioutil.WriteFile(fname, buffer.Bytes(), 0644)
+	defer os.Remove(fname)
+	if err != nil {
+		t.Fail()
+	}
+	// fname := "apis.txt"
+	targets, err := ReadConfigFile(fname)
+	if err != nil || len(targets) != 0 {
+		t.Fail()
+	}
+}
 func TestReadConfigFile(t *testing.T) {
 	fname := "test.txt"
 	var buffer bytes.Buffer
@@ -40,7 +56,7 @@ func TestReadConfigFile(t *testing.T) {
 		t.Fail()
 	}
 	// fname := "apis.txt"
-	targets := readConfigFile(fname)
+	targets, _ := ReadConfigFile(fname)
 	if len(targets) < 1 {
 		t.Fail()
 	}
