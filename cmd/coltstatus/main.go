@@ -44,7 +44,12 @@ func startServer(path string, port int) {
 
 func getRequestHandler(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
-	result := coltstatus.CheckDependentServices("apis.txt")
+	targets, err := coltstatus.ReadConfigFile("apis.txt")
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+	result := coltstatus.CheckDependentServices(targets)
 	var buffer bytes.Buffer
 	w.WriteHeader(result)
 	buffer.WriteString("hi")

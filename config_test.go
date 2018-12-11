@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"testing"
 )
 
 func TestParseLine(t *testing.T) {
 	testline := "http://172.22.0.3:5000/ 200"
-	url, code, err := parseLine(testline)
-	println(url)
-	println(strconv.Itoa(code))
+	_, _, err := parseLine(testline)
+	// println(url)
+	// println(strconv.Itoa(code))
 	if err != nil {
 		t.Fail()
 	}

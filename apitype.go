@@ -20,13 +20,15 @@ type ApiTarget struct {
 // - 200 if all targets respond as expected
 // - 500 as soon as a target fails to respond or responds with an unexpected HTTP status code
 // - 404 if the config file cannot be found
-func CheckDependentServices(filename string) int {
-	targets, err := ReadConfigFile(filename)
-	if err != nil {
-		return 404
-	}
+func CheckDependentServices(targets []ApiTarget) int {
+	c := make(chan bool)
+
 	for _, element := range targets {
-		if !isAPIOK(element) {
+		go func() { c <- isAPIOK(element) }()
+	}
+
+	for _, _ = range targets {
+		if !<-c {
 			return 500
 		}
 	}
