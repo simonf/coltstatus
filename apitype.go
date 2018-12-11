@@ -5,6 +5,7 @@ package coltstatus
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -23,8 +24,10 @@ type ApiTarget struct {
 func CheckDependentServices(targets []ApiTarget) int {
 	c := make(chan bool)
 
+	println(strconv.Itoa(len(targets)) + " urls to check")
 	for _, element := range targets {
-		go func() { c <- isAPIOK(element) }()
+		e := element
+		go func() { c <- isAPIOK(e) }()
 	}
 
 	for _, _ = range targets {
